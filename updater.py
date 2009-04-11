@@ -24,32 +24,67 @@ import time
 from filezaar.constants import *
 
 
-
 class Updater(object):
 
     def __init__(self):
         self.tree = WorkingTree.open(WORKING_PATH)
         self.branch_local = branch.Branch.open(BRANCH_URI_LOCAL)
         self.branch_remote = branch.Branch.open('%s' % BRANCH_URI_REMOTE)
+        self.sync()
+
+
+    def sync (self):
+        """
+        Synchronize working copy with repository and viceversa
+        """
+        #First check if anything has been removed
+
+        #Then add everything that is not already in the working copy
+        noti = pynotify.Notification("Synchronizing files:", "synchronizing files")
+        noti.set_timeout(0)
+        noti.show()
+        self._add()
+        #Commit Local changes
+        self._commit("Adding files that were created, modified or deleted while filezaar was not running")
+        #Merge with server files
+        self._merge()
+        #This commit should ocurred only if something was merged
+        self._commit("Adding files that were created, modified or deleted while filezaar was not running")
+        #Push everything to the repository
+        self._push()
+        noti.update("Synchronization complete:", "Files have been synchronized with remote repository")
+        noti.set_timeout(pynotify.EXPIRES_DEFAULT)
+        noti.show()
+
+
+
+
 
     def upload_file(self, file_name):
         """
-        Uploads a file and it adds it to the skazaar server
+        Uploads a file and it adds it to the filezaar
         """
+        #Still need to add locking mechanisims to avoid files not being updated
+
         try:
             self._add(file_name)
-        
         except AssertionError:
-            pass
+            return
+        try:
+            self._commit("Adding %s" % file_name)
+            self._merge()
+            noti = pynotify.Notification("Upload in progress:", "File  %s is being uploaded" % file_name)
+            noti.set_timeout(0)
+            noti.show()
+            self._push()
+            noti.update("Upload Completed:", "File  %s has been uploaded" % file_name)
+            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
+            noti.show()
+        except:
+            noti.update("Upload has failed:", "There was a problem trying to upload %s" % file_name)
+            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
+            noti.show()
 
-        #    print ("File does not exists any more %s"  % e)
-        #    return
-
-        #Poner los trys en las funciones ya que cada exception es unica a cada funcion
-        self._commit("Adding %s" % file_name)
-        self._push()
-        noti = self._notify("Upload Completed:", "File  %s has been uploaded" % file_name)
-       
     def _resolve_all(self):
         """Resolve some or all of the conflicts in a working tree.
         """
@@ -67,17 +102,12 @@ class Updater(object):
         finally:
             tree.unlock()
     
-     
 
     def _merge(self):
-        self.tree.merge_from_branch(self.branch_remote)
-
-    def _notify(self, msg_title, msg_content):
-        if PYGTK_ENABLED:
-            noti = pynotify.Notification(msg_title,"%s" % msg_content)
-            noti.show()
-        else:
-            print msg_title, msg_content
+        try:
+            self.tree.merge_from_branch(self.branch_remote)
+        except errors.PointlessMerge:
+            pass
 
     def _pull(self):
         """
@@ -85,28 +115,34 @@ class Updater(object):
         """
         self.branch_local.pull(self.branch_remote)
 
-
     def _push(self):
         """
         Pushes the commited files to filezaar
         """
+        print "entring push"
         try:
             self.branch_local.push(self.branch_remote)
         except errors.DivergedBranches:
             self._merge()
-            self._notify("Branch Merged:", "Branch has been merged")
+            noti = pynotify.Notification("Branch Merged:", "Branch has been merged")
+            noti.set_timeout(0)
             self.branch_local.push(self.branch_remote)
             self._push()
+            noti.show()
         except errors.UncommittedChanges:
             self._commit("Adding uncommited changes")
             self._push()
+        except Exception, e :
+            print e
 
 
-
-    def _add(self, file_name):
+    def _add(self, file_name=None):
         #It would be great if I could add all the files as binaries
         #But right now I don't know how to doit
-        self.tree.smart_add(['%s' % (file_name)])
+        if file_name is not None:
+            self.tree.smart_add(['%s' % (file_name)])
+        else:
+            self.tree.smart_add(['%s' % (WORKING_PATH)])
 
     def _commit(self, commit_text):
         """
@@ -117,7 +153,6 @@ class Updater(object):
         except errors.ConflictsInTree:
             self._resolve_all() 
             self.tree.commit(commit_text)
-            self._notify("Conflicts:", "Conflicts have been resolved")
 
     def _update(self):
         """

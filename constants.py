@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
-
+import os
 try:
     import pygtk
     pygtk.require('2.0')
@@ -24,8 +24,8 @@ except:
     print "Pygtk is not available"
     PYGTK_ENABLED = False
 
-#WORKING_PATH = '/home/ska/Skazar/projecttest1/testp1'
-WORKING_PATH = '/home/ska/Skazar/projecttest2'
+WORKING_PATH = '/home/ska/Skazar/projecttest1/testp1'
+#WORKING_PATH = '/home/ska/Skazar/projecttest2'
 
 #WORKING_PATH = os.getcwd()
 
