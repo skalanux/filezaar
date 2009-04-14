@@ -1,0 +1,58 @@
+#    This file is part of FileZaar.
+#    FileZaar is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#   FileZaar is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
+
+This is a simple HandBook for FileZaar.
+
+Introduction:
+============
+    FileZaar is a FileSharing Synchronizer backup tool much like DropBox(r).
+It allows you to keep a copy of your files across different computers, having 
+everythin replicated automatically and instantaneously. It is base on bazaar
+the Open Source Disrtibuted Version Control System. It requires to parts: A 
+local copy of FileZaar running on your computer, and a Centralized repository
+(it could be your own or a third party as long as you have Read and Write 
+capabilities over it). The process is simple, you keep a copy of a 
+"repository branch" on your PC and that copy is monitored by FileZaar, each time
+you create, delete or update a file or folder, this change is propagated 
+automatically to your centralized branch) and it can be picked up later when you
+start your filezaar in a different machine, as each time you start filezaar it 
+checks for new changes on your local and centralized copy and it merges it. 
+You can also configure this tho be done at a specific interval of time, or do 
+it at will.
+
+Notes:
+=====
+If you are running your own centralized repository you can use loggerhead to browse 
+your,files https://launchpad.net/loggerhead
+
+Check this copy of loggerhead I have installed:
+http://190.210.45.241:8080/
+
+Eventually this project will include a front end (probably based on loggerhead),
+but for now loggerhead meets the needs pretty well.
+
+
+
+Installing:
+==========
+Refer to the INSTALL FILE at the root installation directory.
+
+
+For any questions you may have or if you want to collaborate with the project, 
+send me an email to:
+ska@lanux.org.ar
+
+
+Juan Manuel Schillaci
+

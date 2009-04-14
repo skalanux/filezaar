@@ -24,10 +24,18 @@ except:
     print "Pygtk is not available"
     PYGTK_ENABLED = False
 
-WORKING_PATH = '/home/ska/Skazar/projecttest1/testp1'
-#WORKING_PATH = '/home/ska/Skazar/projecttest2'
+WORKING_PATH = '/home/user/filezaar'                #This is where you downloaded 
+                                                    #the branch to
 
-#WORKING_PATH = os.getcwd()
+BRANCH_URI_REMOTE = 'sftp://user@server/~/branch'   #is not necessary for this
+                                                    #to be an sftp server,
+                                                    #it could be any supported
+                                                    #protocol,with read and write
+                                                    #capabilities you can even use
+                                                    #Launchpad or similar for
+                                                    #this, altough I don't know If
+                                                    #that is allowed. If you are
+                                                    #testing it can also be a
+                                                    #local branch.
 
-BRANCH_URI_REMOTE = 'sftp://skazaar@mislupins.com.ar/~/testp1'
 BRANCH_URI_LOCAL = "".join(('file://', WORKING_PATH))

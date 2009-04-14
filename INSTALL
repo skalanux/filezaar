@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+
+#    This file is part of FileZaar.
+#    FileZaar is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#   FileZaar is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
+
+This file has instructions on how to download and install filezaar on your 
+computer, please notice that this is a realy early version, meant only for 
+developers. You are at your own risk!!
+
+
+Required OS: Linux, (it only has been tested on Ubuntu 8.10, but it should work
+                    on any linux with the libraries mentioned below), it also
+                    requires a kernel with INOTIFY support. if you don't know 
+                    what I'm talking about, you already have it :).
+
+Required libraries: python-inotify, python-notify, bzrlib >= version 0.13 
+    (if you are using Ubuntu 8.10 you can install bzrlib using easy_install,
+    because Ubuntu has an old and buggy version on its repositories)
+
+
+Download/Install:
+================
+
+- Create a directory called filezaarinstall inside your home directory 
+  (or wherever you like) and cd to it
+
+$ mkdir /home/user/filezaarinstall
+$ cd /home/user/filezaarinstall
+
+- Download the sourcecode with bazaar:
+
+$ bzr branch lp:filezaar
+
+
+
+Configuring it:
+==============
+- Create a branch somewhere (this need to be accesible from your machine).
+- Edit the constants.py file and customize it to fit your needs:
+
+.
+.
+WORKING_PATH = '/home/user/filezaar'                #This is where you downloaded 
+                                                    #the branch to
+
+BRANCH_URI_REMOTE = 'sftp://user@server/~/branch'   #is not necessary for this
+                                                    #to be an sftp server,
+                                                    #it could be any supported
+                                                    #protocol,with read and write
+                                                    #capabilities you can even use
+                                                    #Launchpad or similar for
+                                                    #this, altough I don't know If
+                                                    #that is allowed. If you are
+                                                    #testing it can also be a
+                                                    #local branch.
+.
+.
+
+
+- Download the remote branch to a directory (WORKING_PATH) with the following command 
+
+$ bzr branch BRANCH_URI_REMOTE
+
+Running FileZaar:
+================
+
+1) Export the PYTHONPATH environment variable
+
+$ export PYTHONPATH=/home/user/filezaarinstall:{$PYTHNOPATH}
+
+From within the directory where the source code has been isntalled simply run:
+
+$ python main.py
+
+To test if it is working just copy or create a file inside the WORKING_PATH and 
+it will be automatically synchronized with the remote branch.
+
+
