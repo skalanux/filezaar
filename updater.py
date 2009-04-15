@@ -15,21 +15,28 @@
 
 import os, sys
 import re
-from pyinotify import WatchManager, Notifier, ProcessEvent, EventsCodes
 from bzrlib import branch, errors
 from bzrlib.workingtree import WorkingTree
 from bzrlib.conflicts import ConflictList
+from pyinotify import WatchManager, Notifier, ProcessEvent, EventsCodes
 from fnmatch import translate
 import time
 from filezaar.constants import *
+import config
+
 
 
 class Updater(object):
 
     def __init__(self):
-        self.tree = WorkingTree.open(WORKING_PATH)
-        self.branch_local = branch.Branch.open(BRANCH_URI_LOCAL)
-        self.branch_remote = branch.Branch.open('%s' % BRANCH_URI_REMOTE)
+        configuration = config.get_config()
+        branch_uri_local = configuration['branch_uri_local']
+        branch_uri_remote = configuration['branch_uri_remote']
+
+        self.working_path = configuration['working_path']
+        self.tree = WorkingTree.open(self.working_path)
+        self.branch_local = branch.Branch.open(branch_uri_local)
+        self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
         self.sync()
 
 
@@ -142,7 +149,7 @@ class Updater(object):
         if file_name is not None:
             self.tree.smart_add(['%s' % (file_name)])
         else:
-            self.tree.smart_add(['%s' % (WORKING_PATH)])
+            self.tree.smart_add(['%s' % (self.working_path)])
 
     def _commit(self, commit_text):
         """
@@ -212,7 +219,7 @@ class Updater(object):
         wm = WatchManager()
         notifier = Notifier(wm, Process(self))
         ec = EventsCodes
-        wm.add_watch(WORKING_PATH, ec.IN_CREATE|ec.IN_MODIFY|ec.IN_MOVED_FROM|ec.IN_ISDIR)
+        wm.add_watch(self.working_path, ec.IN_CREATE|ec.IN_MODIFY|ec.IN_MOVED_FROM|ec.IN_ISDIR)
         #Need to add event ON_DELETE and MOVED_TO
     
         try:

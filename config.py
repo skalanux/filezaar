@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 #    This file is part of FileZaar.
 #    FileZaar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,13 +12,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
-import os
-try:
-    import pygtk
-    pygtk.require('2.0')
-    import pynotify
-    pynotify.init('FileZaar')
-    PYGTK_ENABLED = True
-except:
-    print "Pygtk is not available"
-    PYGTK_ENABLED = False
+
+import ConfigParser
+
+cp = ConfigParser.ConfigParser()
+cp.read('config.inc')
+section = 'main'
+
+def get_config():
+    working_path = cp.get(section, 'working_path')
+    branch_uri_remote = cp.get(section, 'branch_uri_remote')
+    branch_uri_local = "".join(('file://', working_path))
+    return locals()

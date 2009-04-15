@@ -47,30 +47,26 @@ $ bzr branch lp:filezaar
 Configuring it:
 ==============
 - Create a branch somewhere (this need to be accesible from your machine).
-- Edit the constants.py file and customize it to fit your needs:
+- Create a copy of the config.inc.dist file and name it config.py
+ the constants.py file and customize it to fit your needs:
 
 .
 .
-WORKING_PATH = '/home/user/filezaar'                #This is where you downloaded 
-                                                    #the branch to
-
-BRANCH_URI_REMOTE = 'sftp://user@server/~/branch'   #is not necessary for this
-                                                    #to be an sftp server,
-                                                    #it could be any supported
-                                                    #protocol,with read and write
-                                                    #capabilities you can even use
-                                                    #Launchpad or similar for
-                                                    #this, altough I don't know If
-                                                    #that is allowed. If you are
-                                                    #testing it can also be a
-                                                    #local branch.
-.
+[main]
+#This is where you are going to store your files
+working_path = '/home/user/files'   
+#It is not necessary for this to be an sftp server,
+#it could be any supported protocol,with read and write
+#capabilities you can even use Launchpad or similar for
+#this, altough I don't know If that is allowed. If you are
+#testing it can also be a local branch.
+branch_uri_remote = 'sftp://user@server/~/files' .
 .
 
 
-- Download the remote branch to a directory (WORKING_PATH) with the following command 
+- Download the remote branch to a directory (working_path) with the following command 
 
-$ bzr branch BRANCH_URI_REMOTE
+$ bzr branch branch_uri_remote
 
 Running FileZaar:
 ================
