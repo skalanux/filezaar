@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 #    This file is part of FileZaar.
 #    FileZaar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -13,9 +12,24 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
+#    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
-from filezaar.updater import Updater
+
+import Queue
+from filezaar.queuemanager import QueueManager
+from filezaar.watcher import Watcher
 
 if __name__ == '__main__':
-    filezaar = Updater()
-    filezaar.monitor()
+    #Initialized a queue, tath will contain all files that need
+    #to be updated
+    queue_ = Queue.Queue()
+    
+    #The QueueManager handles incoming requests
+    queue_manager = QueueManager(queue_)
+    queue_manager.start()
+    
+    #Initializing the watcher object that monitors
+    #Files and Directories
+    watcher = Watcher()
+    watcher.monitor(queue_)
+

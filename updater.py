@@ -12,94 +12,21 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
+#    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
 import os, sys
 import re
 from fnmatch import translate
 import time
-import threading
-import Queue
 from bzrlib import branch, errors
-from bzrlib.workingtree import WorkingTree
 from bzrlib.conflicts import ConflictList
-from pyinotify import WatchManager, Notifier, ProcessEvent, EventsCodes
+from bzrlib.lockdir import LockDir
+from bzrlib.workingtree import WorkingTree
 import config
 from filezaar.constants import *
 
-class QueueManager(threading.Thread):
-    """
-    This class is on charge of processing incoming upload/synchronizing
-    requests, the files on the queue should have a priprity so they can
-    be process according to it, this could be achived using weigths
-    according to a specific critery
-    """
-    def __init__(self, parent):
-        self.parent = parent
-        self.queue_ = parent.queue_
-        threading.Thread.__init__(self)
-
-    def run(self):
-        while True:
-            data = self.queue_.get()
-            print "mandadno a subir data %s" % data[0]
-            self.parent.upload_file(data[0])
-
-class Process(ProcessEvent):
-    """
-    Class that process events as they ocurred
-    """
-    def __init__(self, parent):
-        self.parent = parent
-        BLACK_LISTED_FILE_TYPES = ('*.swp', '*.pepe')
-        rx = '|'.join(translate(p) for p in BLACK_LISTED_FILE_TYPES)
-        self.pattern = re.compile(rx)
-        
-        #Create Events handler
-        self.events_handler = {}
-
-        self._register_event('IN_CREATE', '_handle_update') 
-        self._register_event('IN_MODIFY', '_handle_update') 
-        self._register_event('IN_MOVED_FROM', '_handle_update') 
-        self._register_event('IN_ISDIR', '_handle_isdir') 
-
-        print "events handler: ",self.events_handler
-
-    def _register_event(self, handler, evt):
-        self.events_handler[handler] = evt
-
-    def __call__(self, caller_event):
-        file_name = caller_event.name
-
-        if not self.pattern.match(file_name):
-            file_path = caller_event.path
-            file_complete_name = file_name and os.path.join(file_path, file_name) or file_path
-
-            #Calling the actual event
-            events_name = caller_event.event_name.split("|")
-            if len(events_name) == 3:
-                event_type = events_name[0]
-                handler_name = self.events_handler[event_type]
-                getattr(self, handler_name)(event_type, file_complete_name)
-            else:
-                for event in events_name:
-                    handler_name = self.events_handler[event]
-                    getattr(self, handler_name)(event, file_complete_name)
-
-    def _handle_update(self,event, file_name):
-        #self.parent.upload_file(file_name)
-        #self.parent.upload_file(file_name)
-        self.parent.queue_.put((file_name,))
-
-    def _handle_isdir(self,event, file_name):
-        #Probably we only need to use smart add when it is a directory
-        #self.parent.upload_file(file_name)
-        pass
-
 class Updater(object):
     def __init__(self):
-        self.queue_ = Queue.Queue()
-        self.queue_manager = QueueManager(self)
-        self.queue_manager.start()
         configuration = config.get_config()
         branch_uri_local = configuration['branch_uri_local']
         branch_uri_remote = configuration['branch_uri_remote']
@@ -107,11 +34,13 @@ class Updater(object):
         self.tree = WorkingTree.open(self.working_path)
         self.branch_local = branch.Branch.open(branch_uri_local)
         self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
-        self.sync()
+        self._sync()
 
-    def sync (self):
+    def _sync (self):
         """
         Synchronize working copy with repository and viceversa
+        if remote respository does not exists yet, it creates it,
+        and the same thing happens with the local copy
         """
         #First check if anything has been removed
         #Then add everything that is not already in the working copy
@@ -134,15 +63,18 @@ class Updater(object):
 
     def upload_file(self, file_name):
         """
-        Uploads a file and it adds it to the filezaar
+        Uploads a file and it adds it to the filezaar repository
         """
-        #Still need to add locking mechanisims to avoid files not being updated
+
+        #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
+        #lft.unlock()
 
         try:
             self._add(file_name)
         except AssertionError:
             return
         try:
+
             self._commit("Adding %s" % file_name)
             self._merge()
             noti = pynotify.Notification("Upload in progress:", "File  %s is being uploaded" % file_name)
@@ -230,20 +162,3 @@ class Updater(object):
         update files
         """
         self.tree.update()
-
-    def monitor(self):
-
-        wm = WatchManager()
-        notifier = Notifier(wm, Process(self))
-        ec = EventsCodes
-        wm.add_watch(self.working_path, ec.IN_CREATE|ec.IN_MODIFY|ec.IN_MOVED_FROM|ec.IN_ISDIR)
-        #Need to add event ON_DELETE and MOVED_TO
-
-        try:
-            while True:
-                notifier.process_events()
-                if notifier.check_events():
-                    notifier.read_events()
-        except KeyboardInterrupt:
-            notifier.stop()
-            return

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 #    This file is part of FileZaar.
 #    FileZaar is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -15,15 +14,26 @@
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
+import os, sys
+import re
+import threading
+import config
+from filezaar.constants import *
+from filezaar.updater import Updater
 
+class QueueManager(threading.Thread):
+    """
+    This class is on charge of processing incoming upload/synchronizing
+    requests, the files on the queue should have a priprity so they can
+    be process according to it, this could be achived using weigths
+    according to a specific critery
+    """
+    def __init__(self, queue_):
+        self.queue_ = queue_
+        self.updater = Updater()
+        threading.Thread.__init__(self)
 
-import os
-try:
-    import pygtk
-    pygtk.require('2.0')
-    import pynotify
-    pynotify.init('FileZaar')
-    PYGTK_ENABLED = True
-except:
-    print "Pygtk is not available"
-    PYGTK_ENABLED = False
+    def run(self):
+        while True:
+            data = self.queue_.get()
+            self.updater.upload_file(data[0])
