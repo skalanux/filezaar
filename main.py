@@ -15,21 +15,34 @@
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
 
+import logging
 import Queue
+
 from filezaar.queuemanager import QueueManager
 from filezaar.watcher import Watcher
 
-if __name__ == '__main__':
-    #Initialized a queue, tath will contain all files that need
-    #to be updated
-    queue_ = Queue.Queue()
-    
-    #The QueueManager handles incoming requests
-    queue_manager = QueueManager(queue_)
-    queue_manager.start()
-    
-    #Initializing the watcher object that monitors
-    #Files and Directories
-    watcher = Watcher()
-    watcher.monitor(queue_)
 
+class FileZaar(object):
+    """FileZaar Base Class"""
+ 
+    def run(self):
+        """
+        Main method that contains the calls to all the
+        other classes
+        """
+        #Initialized a queue, tath will contain all files that need
+        #to be updated
+        queue_ = Queue.Queue()
+        
+        #The QueueManager handles incoming requests
+        queue_manager = QueueManager(queue_)
+        queue_manager.start()
+        
+        #Initializing the watcher object that monitors
+        #Files and Directories
+        watcher = Watcher()
+        watcher.monitor(queue_)
+    
+if __name__ == '__main__':
+    filezaar = FileZaar()
+    filezaar.run()
