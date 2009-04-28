@@ -42,7 +42,13 @@ http://190.210.45.241:8080/
 Eventually this project will include a front end (probably based on loggerhead),
 but for now loggerhead meets the needs pretty well.
 
-
+Known Issues:
+============
+If is not properly shutted down the repository can be locked, resulting this in enormous waiting
+times, without notifying this to the user.
+Quick Fix:
+From the command line run: 
+bzr break-lock [remotbranch]/.bzr/branch/lock
 
 Installing:
 ==========

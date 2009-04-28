@@ -77,7 +77,7 @@ $ export PYTHONPATH=/home/user/filezaarinstall:{$PYTHNOPATH}
 
 From within the directory where the source code has been isntalled simply run:
 
-$ python main.py
+$ python filezaardaemon.py
 
 To test if it is working just copy or create a file inside the WORKING_PATH and 
 it will be automatically synchronized with the remote branch.

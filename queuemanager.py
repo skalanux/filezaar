@@ -20,6 +20,7 @@ import threading
 import config
 from filezaar.constants import *
 from filezaar.updater import Updater
+import dbus
 
 class QueueManager(threading.Thread):
     """
@@ -30,10 +31,16 @@ class QueueManager(threading.Thread):
     """
     def __init__(self, queue_):
         self.queue_ = queue_
-        self.updater = Updater()
+        self.bus = dbus.SessionBus()
+        filezaard = self.bus.get_object('org.filezaar.daemon', '/org/filezaar/daemon')
+        filezaard = self.bus.get_object('org.filezaar.daemon', '/org/filezaar/daemon')
+        self.filezaar_daemon = dbus.Interface(filezaard, 'org.filezaar.daemon')
+
+        #self.updater = Updater()
         threading.Thread.__init__(self)
 
     def run(self):
         while True:
             data = self.queue_.get()
-            self.updater.upload_file(data[0])
+            self.filezaar_daemon.UploadFile(data[0])
+            #self.updater.upload_file(data[0])
