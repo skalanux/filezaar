@@ -27,3 +27,8 @@ try:
 except:
     print "Pygtk is not available"
     PYGTK_ENABLED = False
+
+STATUS_UPDATING = 100
+STATUS_PULLING = 200
+STATUS_PUSHING = 300
+STATUS_IDLE = 400

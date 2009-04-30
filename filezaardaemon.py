@@ -52,7 +52,7 @@ from bzrlib.lockdir import LockDir
 from bzrlib.workingtree import WorkingTree
 import config
 from filezaar.constants import *
-
+from filezaar.updater import Updater
 
 
 if getattr(dbus, 'version', (0, 0, 0)) < (0, 80, 0):
@@ -81,6 +81,12 @@ class FileZaarMain(dbus.service.Object):
         return version
 
     @dbus.service.method('org.filezaar.daemon')
+    def GetFileZaarStatus(self):
+        """ Returns the version number. 
+        """
+        return STATUS_IDLE, "Filezaar is uptodate"
+
+    @dbus.service.method('org.filezaar.daemon')
     def UploadFile(self, file):
         """ Returns the version number. 
         """
@@ -93,148 +99,6 @@ class FileZaarMain(dbus.service.Object):
         """
         print 'Synchronizing'
         self.updater._sync()
-
-class Updater(object):
-    def __init__(self):
-        configuration = config.get_config()
-        branch_uri_local = configuration['branch_uri_local']
-        branch_uri_remote = configuration['branch_uri_remote']
-        self.working_path = configuration['working_path']
-        self.tree = WorkingTree.open(self.working_path)
-        self.branch_local = branch.Branch.open(branch_uri_local)
-        self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
-        self._sync()
-
-    def _sync (self):
-        """
-        Synchronize working copy with repository and viceversa
-        if remote respository does not exists yet, it creates it,
-        and the same thing happens with the local copy
-        """
-        #First check if anything has been removed
-        #Then add everything that is not already in the working copy
-        noti = pynotify.Notification("Synchronizing files:", "synchronizing files")
-        noti.set_timeout(0)
-        noti.show()
-        self._add()
-        #Commit Local changes
-        print "commiting"
-        self._commit("Adding files that were created, modified or deleted while filezaar was not running")
-        #Merge with server files
-        print "merging"
-        self._merge()
-        #This commit should ocurred only if something was merged
-        print "commiting again"
-        self._commit("Adding files that were created, modified or deleted while filezaar was not running")
-        #Push everything to the repository
-        print "pushing"
-        self._push()
-        noti.update("Synchronization complete:", "Files have been synchronized with remote repository")
-        noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-        noti.show()
-
-
-    def upload_file(self, file_name):
-        """
-        Uploads a file and it adds it to the filezaar repository
-        """
-
-        #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
-        #lft.unlock()
-
-        try:
-            self._add(file_name)
-        except AssertionError:
-            return
-        try:
-
-            self._commit("Adding %s" % file_name)
-            self._merge()
-            noti = pynotify.Notification("Upload in progress:", "File  %s is being uploaded" % file_name)
-            noti.set_timeout(0)
-            noti.show()
-            self._push()
-            noti.update("Upload Completed:", "File  %s has been uploaded" % file_name)
-            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-            noti.show()
-        except:
-            noti.update("Upload has failed:", "There was a problem trying to upload %s" % file_name)
-            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-            noti.show()
-
-    def _resolve_all(self):
-        """Resolve some or all of the conflicts in a working tree.
-        """
-        tree = self.tree
-        tree.lock_tree_write()
-        try:
-            tree_conflicts = tree.conflicts()
-            new_conflicts = ConflictList()
-            selected_conflicts = tree_conflicts
-            try:
-                tree.set_conflicts(new_conflicts)
-            except errors.UnsupportedOperation:
-                pass
-            selected_conflicts.remove_files(tree)
-        finally:
-            tree.unlock()
-    
-
-    def _merge(self):
-        try:
-            self.tree.merge_from_branch(self.branch_remote)
-        except errors.PointlessMerge:
-            pass
-
-    def _pull(self):
-        """
-        Pull changes from remote repository
-        """
-        self.branch_local.pull(self.branch_remote)
-
-    def _push(self):
-        """
-        Pushes the commited files to filezaar
-        """
-        try:
-            self.branch_local.push(self.branch_remote)
-        except errors.DivergedBranches:
-            self._merge()
-            noti = pynotify.Notification("Branch Merged:", "Branch has been merged")
-            noti.set_timeout(0)
-            self.branch_local.push(self.branch_remote)
-            self._push()
-            noti.show()
-        except errors.UncommittedChanges:
-            self._commit("Adding uncommited changes")
-            self._push()
-        except Exception, e :
-            print e
-
-
-    def _add(self, file_name=None):
-        #It would be great if I could add all the files as binaries
-        #But right now I don't know how to do it
-        if file_name is not None:
-            self.tree.smart_add(['%s' % (file_name)])
-        else:
-            self.tree.smart_add(['%s' % (self.working_path)])
-
-    def _commit(self, commit_text):
-        """
-        Commits the changes to local repository
-        """
-        try:
-            self.tree.commit(commit_text)
-        except errors.ConflictsInTree:
-            self._resolve_all() 
-            self.tree.commit(commit_text)
-
-    def _update(self):
-        """
-        update files
-        """
-        self.tree.update()
 
 def usage():
     # VERSIONNUMBER
