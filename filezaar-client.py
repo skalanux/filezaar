@@ -67,7 +67,7 @@ class TrayIcon(object):
             
         def set_idle_state(self, info):
             """ Sets the icon info for a wired state. """
-            self.tr.set_from_file(FileZaarPath.images + "filezaar_icon.png")
+            self.tr.set_from_file(FileZaarPath.images + "filezaar_uptodate.png")
             self.tr.set_tooltip(info)
             
         def set_syncing_state(self, info):
@@ -150,7 +150,7 @@ class TrayIcon(object):
                     <ui>
                     <menubar name="Menubar">
                     <menu action="Menu">
-                    <menuitem action="Connect"/>
+                    <menuitem action="Synchronize"/>
                     <separator/>
                     <menuitem action="About"/>
                     <menuitem action="Quit"/>
@@ -160,11 +160,11 @@ class TrayIcon(object):
             """
             actions = [
                     ('Menu',  None, 'Menu'),
-                    ('Connect', gtk.STOCK_CONNECT, '_Connect...', None,
+                    ('Synchronize', gtk.STOCK_CONNECT, '_Synchronize..', None,
                      'Connect to network', self.on_preferences),
                     ('About', gtk.STOCK_ABOUT, '_About...', None,
-                     'About wicd-tray-icon', self.on_about),
-                    ('Quit',gtk.STOCK_QUIT,'_Quit',None,'Quit wicd-tray-icon',
+                     'About filezaar-tray-icon', self.on_about),
+                    ('Quit',gtk.STOCK_QUIT,'_Quit',None,'Quit FileZaar Tray Icon',
                      self.on_quit),
                     ]
             actg = gtk.ActionGroup('Actions')
@@ -180,7 +180,7 @@ class TrayIcon(object):
 
         def on_activate(self, data=None):
             """ Opens the wicd GUI. """
-            self.toggle_wicd_gui()
+            self.show_nautilus_filezaar_folder()
 
         def on_quit(self, widget=None):
             """ Closes the tray icon. """
@@ -188,21 +188,24 @@ class TrayIcon(object):
 
         def on_preferences(self, data=None):
             """ Opens the wicd GUI. """
-            self.toggle_wicd_gui()
+            self.show_nautilus_filezaar_folder()
 
         def on_about(self, data=None):
             """ Opens the About Dialog. """
             dialog = gtk.AboutDialog()
-            dialog.set_name('wicd tray icon')
+            dialog.set_name('FileZaar Tray Icon')
             # VERSIONNUMBER
-            dialog.set_version('1.5.9')
-            dialog.set_comments('An icon that shows your network connectivity')
-            dialog.set_website('http://wicd.net')
+            dialog.set_version('0.1')
+            dialog.set_comments('This icon controls FileZaar and show it status')
+            dialog.set_website('http://filezaar.com.ar')
             dialog.run()
             dialog.destroy()
 
-        def toggle_wicd_gui(self):
-            """ Toggles the wicd GUI. """
+        def show_nautilus_filezaar_folder(self):
+            """ Opens Nautilus. 
+                It would be great to use DBUS , but it seems like
+                Those Features are not present at the moment
+            """
             if not self.gui_win:
                 self.gui_win = gui.appGui()
                 bus.add_signal_receiver(self.gui_win.dbus_scan_finished,
@@ -231,7 +234,7 @@ class TrayIcon(object):
                 self.use_tray = use_tray
                 self.use_tray = True
                 if not use_tray: 
-                    self.toggle_wicd_gui()
+                    self.show_nautilus_filezaar_folder()
                     return
     
                 gtk.StatusIcon.__init__(self)

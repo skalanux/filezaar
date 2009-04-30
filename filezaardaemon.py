@@ -95,8 +95,6 @@ class FileZaarMain(dbus.service.Object):
 
     @dbus.service.method('org.filezaar.daemon')
     def Sync(self, file):
-        """ Returns the version number. 
-        """
         print 'Synchronizing'
         self.updater._sync()
 
