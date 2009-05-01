@@ -21,6 +21,5 @@ section = 'main'
 
 def get_config():
     working_path = cp.get(section, 'working_path')
-    branch_uri_remote = cp.get(section, 'branch_uri_remote')
-    branch_uri_local = "".join(('file://', working_path))
+    bzr_branch_uri_remote = cp.get(section, 'bzr_branch_uri_remote')
     return locals()

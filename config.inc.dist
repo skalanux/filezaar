@@ -1,3 +1,3 @@
 [main]
 working_path = /home/user/files
-branch_uri_remote = sftp://user@server.com/~/files
+bzr_branch_uri_remote = sftp://user@server.com/~/files

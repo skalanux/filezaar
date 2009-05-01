@@ -54,6 +54,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 #from filezaar.watcher import Watcher
 import config
 from filezaar.constants import *
+from filezaar.updater import Updater
 
 
 DBusGMainLoop(set_as_default=True)
@@ -61,6 +62,7 @@ class FileZaarDBUS(dbus.service.Object):
     def __init__(self, bus_name, object_path='/org/filezaar/daemon',
                  auto_connect=True):
         dbus.service.Object.__init__(self, bus_name, object_path)
+        self.updater = Updater()   
      
     @dbus.service.method('org.filezaar.daemon')
     def Hello(self):
@@ -75,17 +77,26 @@ class FileZaarDBUS(dbus.service.Object):
     def GetFileZaarStatus(self):
         """ Returns the version number. 
         """
-        # Checking for the state of filezaar
-        # right now this is a dummy method
+        # Chacking for the state of filezaar
         return STATUS_IDLE, "Filezaar is uptodate"
 
-    ########## Signals and Signals methods ############################# 
-    ####################################################################
+    @dbus.service.method('org.filezaar.daemon')
+    def UploadFile(self, file):
+        """ Returns the version number. 
+        """
+        print 'Uploading File'
+        self.updater.upload_file(file)
+
+    @dbus.service.method('org.filezaar.daemon')
+    def Sync(self):
+        print 'Synchronizing'
+        self.updater._sync()
+        self.EmitStatusChanged(100, 'Uploading')
     
-    # Status Changed
     @dbus.service.method('org.filezaar.daemon', in_signature='uav')
     def EmitStatusChanged(self, state, info):
         self.StatusChanged(state, info)
+
 
     @dbus.service.signal(dbus_interface='org.filezaar.daemon', signature='uav')
     def StatusChanged(self, state, info):
@@ -94,21 +105,6 @@ class FileZaarDBUS(dbus.service.Object):
         This D-Bus signal is emitted when the connection status changes.
 
         """
-        pass
-
-    # Request a Synchronization
-    @dbus.service.method('org.filezaar.daemon')
-    def EmitRequestSync(self):
-        self.RequestSync()
-
-    @dbus.service.signal(dbus_interface='org.filezaar.daemon')
-    def RequestSync(self):
-        """ Emits a "status changed" dbus signal.
-
-        This D-Bus signal is emitted when the connection status changes.
-
-        """
-        print "Requesting synchronization"
         pass
 
 
@@ -213,7 +209,7 @@ def main(argv):
 
     gobject.threads_init()
     
-    (child_pid, x, x, x) = gobject.spawn_async(["controller.py"], 
+    (child_pid, x, x, x) = gobject.spawn_async(["main.py"], 
                                                flags=gobject.SPAWN_CHILD_INHERITS_STDIN)
     signal.signal(signal.SIGTERM, sigterm_caught)
     

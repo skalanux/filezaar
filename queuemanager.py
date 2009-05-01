@@ -5,7 +5,7 @@
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#   FileZaar is distributed in the hope that it will be useful,
+#    FileZaar is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
@@ -19,7 +19,7 @@ import re
 import threading
 import config
 from filezaar.constants import *
-from filezaar.updater import Updater
+from filezaar.updater_bzr import UpdaterBZR
 import dbus
 
 class QueueManager(threading.Thread):
@@ -35,12 +35,29 @@ class QueueManager(threading.Thread):
         filezaard = self.bus.get_object('org.filezaar.daemon', '/org/filezaar/daemon')
         filezaard = self.bus.get_object('org.filezaar.daemon', '/org/filezaar/daemon')
         self.filezaar_daemon = dbus.Interface(filezaard, 'org.filezaar.daemon')
+        self.filezaar_daemon.EmitStatusChanged(STATUS_UPDATING, 'Synchronizing')
 
-        #self.updater = Updater()
+        # The updater has several methods to handle a file upload
+        # In theory is possible to implements differents backends for
+        # File Upload, for now the only backend used is bazaar
+
+        self.updater = UpdaterBZR()
+        self.updater.sync()
+
+        self.filezaar_daemon.EmitStatusChanged(STATUS_IDLE, 'UpToDate')
         threading.Thread.__init__(self)
+
+    def dbus_queue(self, arg):
+        """
+        Pushes into the queue requests received from DBUS
+        """
+        # Need to implement a thread so I can run the object 
+        # mainloop, tal vez en el main???
+        pass
 
     def run(self):
         while True:
             data = self.queue_.get()
-            self.filezaar_daemon.UploadFile(data[0])
-            #self.updater.upload_file(data[0])
+            self.filezaar_daemon.EmitStatusChanged(STATUS_UPDATING, 'Uploading')
+            self.updater.upload_file(data[0])
+            self.filezaar_daemon.EmitStatusChanged(STATUS_IDLE, 'UpToDate')

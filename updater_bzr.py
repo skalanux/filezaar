@@ -5,7 +5,7 @@
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#   FileZaar is distributed in the hope that it will be useful,
+#    FileZaar is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
@@ -13,6 +13,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
+""" updater module handler for bazaar backend
+"""
 
 import os, sys
 import re
@@ -25,69 +27,51 @@ from bzrlib.workingtree import WorkingTree
 import config
 from filezaar.constants import *
 
-class Updater(object):
+class UpdaterBZR(object):
     def __init__(self):
         configuration = config.get_config()
-        branch_uri_local = configuration['branch_uri_local']
-        branch_uri_remote = configuration['branch_uri_remote']
         self.working_path = configuration['working_path']
+        branch_uri_remote = configuration['bzr_branch_uri_remote']
+        branch_uri_local = "".join(('file://', self.working_path))
         self.tree = WorkingTree.open(self.working_path)
         self.branch_local = branch.Branch.open(branch_uri_local)
         self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
-        self._sync()
 
-    def _sync (self):
+    def sync (self):
         """
         Synchronize working copy with repository and viceversa
         if remote respository does not exists yet, it creates it,
         and the same thing happens with the local copy
         """
-        #First check if anything has been removed
-        #Then add everything that is not already in the working copy
-        noti = pynotify.Notification("Synchronizing files:", "synchronizing files")
-        noti.set_timeout(0)
-        noti.show()
+        # First check if anything has been removed
+        # Then add everything that is not already in the working copy
         self._add()
-        #Commit Local changes
+        # Commit Local changes
         self._commit("Adding files that were created, modified or deleted while filezaar was not running")
-        #Merge with server files
+        # Merge with server files
         self._merge()
-        #This commit should ocurred only if something was merged
+        # This commit should ocurred only if something was merged
         self._commit("Adding files that were created, modified or deleted while filezaar was not running")
-        #Push everything to the repository
+        # Push everything back to the repository
         self._push()
-        noti.update("Synchronization complete:", "Files have been synchronized with remote repository")
-        noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-        noti.show()
-
 
     def upload_file(self, file_name):
         """
         Uploads a file and it adds it to the filezaar repository
         """
-
         #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
         #lft.unlock()
-
         try:
             self._add(file_name)
         except AssertionError:
             return
         try:
-
             self._commit("Adding %s" % file_name)
             self._merge()
-            noti = pynotify.Notification("Upload in progress:", "File  %s is being uploaded" % file_name)
-            noti.set_timeout(0)
-            noti.show()
             self._push()
-            noti.update("Upload Completed:", "File  %s has been uploaded" % file_name)
-            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-            noti.show()
+            return True
         except:
-            noti.update("Upload has failed:", "There was a problem trying to upload %s" % file_name)
-            noti.set_timeout(pynotify.EXPIRES_DEFAULT)
-            noti.show()
+            return False
 
     def _resolve_all(self):
         """Resolve some or all of the conflicts in a working tree.
@@ -106,7 +90,6 @@ class Updater(object):
         finally:
             tree.unlock()
     
-
     def _merge(self):
         try:
             self.tree.merge_from_branch(self.branch_remote)
@@ -127,7 +110,6 @@ class Updater(object):
             self.branch_local.push(self.branch_remote)
         except errors.DivergedBranches:
             self._merge()
-            noti = pynotify.Notification("Branch Merged:", "Branch has been merged")
             noti.set_timeout(0)
             self.branch_local.push(self.branch_remote)
             self._push()
@@ -140,8 +122,9 @@ class Updater(object):
 
 
     def _add(self, file_name=None):
-        #It would be great if I could add all the files as binaries
-        #But right now I don't know how to do it
+        # It would be great if I could add all the files as binaries
+        # but right now I don't know how to do it
+
         if file_name is not None:
             self.tree.smart_add(['%s' % (file_name)])
         else:
