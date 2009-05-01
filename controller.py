@@ -5,7 +5,7 @@
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#   FileZaar is distributed in the hope that it will be useful,
+#    FileZaar is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
@@ -30,16 +30,16 @@ class FileZaar(object):
         Main method that contains the calls to all the
         other classes
         """
-        #Initialized a queue, tath will contain all files that need
-        #to be updated
+        # Initializes a queue, tath will contain all files that need
+        # to be updated
         queue_ = Queue.Queue()
         
-        #The QueueManager handles incoming requests
+        # The QueueManager handles incoming requests
         queue_manager = QueueManager(queue_)
         queue_manager.start()
         
-        #Initializing the watcher object that monitors
-        #Files and Directories
+        # Initializing the watcher object that monitors
+        # Files and Directories
         watcher = Watcher()
         watcher.monitor(queue_)
     

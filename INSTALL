@@ -60,7 +60,7 @@ working_path = '/home/user/files'
 #capabilities you can even use Launchpad or similar for
 #this, altough I don't know If that is allowed. If you are
 #testing it can also be a local branch.
-branch_uri_remote = 'sftp://user@server/~/files' .
+bzr_branch_uri_remote = 'sftp://user@server/~/files' .
 .
 
 
@@ -81,5 +81,9 @@ $ python filezaardaemon.py
 
 To test if it is working just copy or create a file inside the WORKING_PATH and 
 it will be automatically synchronized with the remote branch.
+
+If you want to receive notifications run also:
+
+$ python filezaar-client.py
 
 
