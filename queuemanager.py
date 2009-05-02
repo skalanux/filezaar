@@ -42,7 +42,7 @@ class QueueManager(threading.Thread):
         # File Upload, for now the only backend used is bazaar
 
         self.updater = UpdaterBZR()
-        #self.updater.sync()
+        self.updater.sync()
 
         self.filezaar_daemon.EmitStatusChanged(STATUS_IDLE, 'UpToDate')
         threading.Thread.__init__(self)

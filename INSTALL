@@ -19,7 +19,7 @@ computer, please notice that this is a realy early version, meant only for
 developers. You are at your own risk!!
 
 
-Required OS: Linux, (it only has been tested on Ubuntu 8.10, but it should work
+Required OS: Linux, (it only has been tested on Ubuntu 8.10 ad above, but it should work
                     on any linux with the libraries mentioned below), it also
                     requires a kernel with INOTIFY support. if you don't know 
                     what I'm talking about, you already have it :).
@@ -47,9 +47,10 @@ $ bzr branch lp:filezaar
 Configuring it:
 ==============
 - Create a branch somewhere (this need to be accesible from your machine).
-- Create a copy of the config.inc.dist file and name it config.py
- the constants.py file and customize it to fit your needs:
+- Create a file inside your home directrory named .filezaarrc, you can use
+  filezaarrc.dist as a template and customize it to fit your needs:
 
+ ex:
 .
 .
 [main]

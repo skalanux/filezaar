@@ -13,10 +13,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import ConfigParser
 
 cp = ConfigParser.ConfigParser()
-cp.read('config.inc')
+home_dir = os.getenv("HOME")
+path_config_file = "/".join((home_dir,'.filezaarrc'))
+cp.read(path_config_file)
 section = 'main'
 
 def get_config():

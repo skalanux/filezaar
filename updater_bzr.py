@@ -57,7 +57,7 @@ class UpdaterBZR(object):
 
     def upload_file(self, file_name):
         """
-        Uploads a file and it adds it to the filezaar repository
+        Uploads a file and adds it to the filezaar repository
         """
         #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
         #lft.unlock()
@@ -106,6 +106,8 @@ class UpdaterBZR(object):
         """
         Pushes the commited files to filezaar
         """
+
+        #import pdb;pdb.set_trace()
         try:
             self.branch_local.push(self.branch_remote)
         except errors.DivergedBranches:
