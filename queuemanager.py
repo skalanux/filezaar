@@ -39,7 +39,7 @@ class QueueManager(threading.Thread):
 
         # The updater has several methods to handle a file upload
         # In theory is possible to implements differents backends for
-        # File Upload, for now the only backend used is bazaar
+        # File Upload, for now the only backend available is bazaar
 
         self.updater = UpdaterBZR()
         self.updater.sync()
@@ -52,10 +52,13 @@ class QueueManager(threading.Thread):
         Pushes into the queue requests received from DBUS
         """
         # Need to implement a thread so I can run the object 
-        # mainloop, tal vez en el main???
+        # mainlooop to catch the signals
         pass
 
     def run(self):
+        """
+        Main method needs to handle all the incoming requests
+        """
         while True:
             data = self.queue_.get()
             self.filezaar_daemon.EmitStatusChanged(STATUS_UPDATING, 'Uploading')

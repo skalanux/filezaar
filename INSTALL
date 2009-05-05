@@ -47,7 +47,7 @@ $ bzr branch lp:filezaar
 Configuring it:
 ==============
 - Create a branch somewhere (this need to be accesible from your machine).
-- Create a file inside your home directrory named .filezaarrc, you can use
+- Create a file inside your home directory named .filezaarrc, you can use
   filezaarrc.dist as a template and customize it to fit your needs:
 
  ex:
