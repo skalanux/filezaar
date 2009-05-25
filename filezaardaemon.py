@@ -57,6 +57,8 @@ from filezaar.constants import *
 
 
 DBusGMainLoop(set_as_default=True)
+global child_pid
+
 class FileZaarDBUS(dbus.service.Object):
     def __init__(self, bus_name, object_path='/org/filezaar/daemon',
                  auto_connect=True):
@@ -213,19 +215,21 @@ def main(argv):
 
     gobject.threads_init()
     
-    (child_pid, x, x, x) = gobject.spawn_async(["controller.py"], 
+    (child_pid, aa, bb, cc) = gobject.spawn_async(["controller.py"], 
                                                flags=gobject.SPAWN_CHILD_INHERITS_STDIN)
-    signal.signal(signal.SIGTERM, sigterm_caught)
+
     
+    signal.signal(signal.SIGINT, sigterm_caught)
+    signal.signal(signal.SIGTERM, sigterm_caught)
     # Enter the main loop
     mainloop = gobject.MainLoop()
     mainloop.run()
 
 
 def sigterm_caught(sig, frame):
-    """ Called when a SIGTERM is caught, kills monitor.py before exiting. """
     global child_pid
-    print 'SIGTERM caught, killing filezaar-monitor...'
+    """ Called when a SIGTERM is caught, kills controller.py before exiting. """
+    print 'SIGTERM caught, killing controller..'
     os.kill(child_pid, signal.SIGTERM)
     print 'Removing PID file...'
     if os.path.exists(wpath.pidfile):

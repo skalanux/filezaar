@@ -14,13 +14,18 @@
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
+
+import dbus
 import os, sys
 import re
+import time
 import threading
+
 import config
-from filezaar.constants import *
+from filezaar.constants import STATUS_UPDATING, STATUS_IDLE
 from filezaar.updater_bzr import UpdaterBZR
-import dbus
+
+BETWEEN_TIME_COMMIT = 2
 
 class QueueManager(threading.Thread):
     """
@@ -55,12 +60,29 @@ class QueueManager(threading.Thread):
         # mainlooop to catch the signals
         pass
 
+    def _upload(self, data_to_upload):
+        self.filezaar_daemon.EmitStatusChanged(STATUS_UPDATING, 'Uploading')
+        self.updater.upload_files(data_to_upload)
+        self.filezaar_daemon.EmitStatusChanged(STATUS_IDLE, 'UpToDate')
+
     def run(self):
         """
         Main method needs to handle all the incoming requests
         """
+        data_to_upload = []
         while True:
-            data = self.queue_.get()
-            self.filezaar_daemon.EmitStatusChanged(STATUS_UPDATING, 'Uploading')
-            self.updater.upload_file(data[0])
-            self.filezaar_daemon.EmitStatusChanged(STATUS_IDLE, 'UpToDate')
+            # Need to time the difference between requests on the queue
+            # After BETWEEN_TIME_COMMIT seconds of not receiving updates
+            # filezaar assumes that is safe to update files
+            # TODO:It should be tracking what events are triggered, 
+            # for now only upload is supported. 
+            #We should add synchronization as well
+
+            # TODO:Exceptions are expensive, find a better way to do this
+            try:
+                data = self.queue_.get(timeout=BETWEEN_TIME_COMMIT)
+                data_to_upload.append(data[0])
+            except:
+                if data_to_upload != []:
+                    self._upload(data_to_upload)
+                    data_to_upload = []

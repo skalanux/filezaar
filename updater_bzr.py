@@ -55,16 +55,18 @@ class UpdaterBZR(object):
         # Push everything back to the repository
         self._push()
 
-    def upload_file(self, file_name):
+    def upload_files(self, file_names):
         """
-        Uploads a file and adds it to the filezaar repository
+        Uploads files and adds them to the filezaar repository
         """
         #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
         #lft.unlock()
-        try:
-            self._add(file_name)
-        except AssertionError:
-            return
+        for file_name in file_names:
+            print file_name
+            try:
+                self._add(file_name)
+            except AssertionError:
+                return
         try:
             self._commit("Adding %s" % file_name)
             self._merge()
