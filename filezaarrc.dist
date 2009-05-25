@@ -1,3 +1,11 @@
 [main]
-working_path = /home/user/files
-bzr_branch_uri_remote = sftp://user@server.com/~/files
+# This is where you are going to store your files
+local_files_dir = /home/user/FileZaar
+# This is the remote repository, it is an URI, the format, and locations supported
+# are the ones allowed by bazaar
+remote_repository_uri = /home/user/repository
+# Version Controll type not supported yet, in the future it would be  bzr, git
+# , svn, hg, etc
+vcs_type = bzr
+
+

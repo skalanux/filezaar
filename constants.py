@@ -18,6 +18,8 @@
 
 
 import os
+import re
+from fnmatch import translate
 try:
     import pygtk
     pygtk.require('2.0')
@@ -33,3 +35,11 @@ STATUS_PULLING = 200
 STATUS_PUSHING = 300
 STATUS_IDLE = 400
 PATH_IMAGES = './resources/'
+LOCAL_FILES_DIR = 'local_files_dir'
+REMOTE_REPOSITORY_URI = 'remote_repository_uri'
+
+# Black Listed File Types
+BLACK_LISTED_FILE_TYPES = ('*.swp', '*.pepe')
+rx = '|'.join(translate(p) for p in BLACK_LISTED_FILE_TYPES)
+BLACK_LISTED_FILE_PATTERN = re.compile(rx)
+

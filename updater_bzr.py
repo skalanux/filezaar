@@ -30,12 +30,32 @@ from filezaar.constants import *
 class UpdaterBZR(object):
     def __init__(self):
         configuration = config.get_config()
-        self.working_path = configuration['working_path']
-        branch_uri_remote = configuration['bzr_branch_uri_remote']
+        self.working_path = configuration[LOCAL_FILES_DIR]
+        branch_uri_remote = configuration[REMOTE_REPOSITORY_URI]
         branch_uri_local = "".join(('file://', self.working_path))
-        self.tree = WorkingTree.open(self.working_path)
-        self.branch_local = branch.Branch.open(branch_uri_local)
-        self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
+
+        # During initialization we need to check if the repository and
+        # local branch exists
+        try:
+            self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
+        except:
+            print "remote branch not accesible, quitting"
+            sys.exit(1)
+
+        # Check for local copy
+        try:
+            self.tree = WorkingTree.open(self.working_path)
+            self.branch_local = branch.Branch.open(branch_uri_local)
+        except errors.NotBranchError:
+            print "Creating local Branch"
+            self._create_local_branch(branch_uri_local)
+            self.tree = WorkingTree.open(self.working_path)
+            self.branch_local = branch.Branch.open(branch_uri_local)
+
+    def _create_local_branch(self, branch_uri_local):
+        local_branch = self.branch_remote.bzrdir.sprout( \
+                       branch_uri_local).open_branch()
+ 
 
     def sync (self):
         """
@@ -96,6 +116,8 @@ class UpdaterBZR(object):
         try:
             self.tree.merge_from_branch(self.branch_remote)
         except errors.PointlessMerge:
+            pass
+        except errors.NoCommits:
             pass
 
     def _pull(self):

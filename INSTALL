@@ -19,69 +19,78 @@ computer, please notice that this is a realy early version, meant only for
 developers. You are at your own risk!!
 
 
-Required OS: Linux, (it only has been tested on Ubuntu 8.10 ad above, but it should work
-                    on any linux with the libraries mentioned below), it also
-                    requires a kernel with INOTIFY support. if you don't know 
-                    what I'm talking about, you already have it :).
+Required OS: Linux, (it only has been tested on Ubuntu 8.10 ad above, but it 
+                    should work also on any linux with the libraries mentioned
+                    below), it also requires a kernel with INOTIFY support. 
+                    if you don't know what I'm talking about, you already 
+                    have it :).
 
-Required libraries: python-inotify, python-notify, bzrlib >= version 0.13 
-    (if you are using Ubuntu 8.10 you can install bzrlib using easy_install,
-    because Ubuntu has an old and buggy version on its repositories)
+Required libraries: python-inotify, python-notify, bzrlib >= version 1.13 
+
+Notes: 
+- If you are using Ubuntu 8.10 you can install bzrlib using easy_install,
+    because Ubuntu 8.10 has an old and buggy version on its repositories),
+    otherwise stick to the apt version.
+- The api for python-inotify has changed signifcantly, the versions available
+    until Ubuntu 9.04 work well, but if you try to install it with easy_install
+    it would fail. I'm planning to fix this ASAP.
+'
 
 
 Download/Install:
 ================
 
-- Create a directory called filezaarinstall inside your home directory 
-  (or wherever you like) and cd to it
+- CheckOut the source code to a directory of your preference.
 
-$ mkdir /home/user/filezaarinstall
-$ cd /home/user/filezaarinstall
-
-- Download the sourcecode with bazaar:
-
+$ mkdir filezaarsource
+$ cd /home/user/filezaarsource
 $ bzr branch lp:filezaar
-
 
 
 Configuring it:
 ==============
-- Create a branch somewhere (this need to be accesible from your machine).
-- Create a file inside your home directory named .filezaarrc, you can use
+In order to run filezaar you need a repostitory to store all your files.
+you can create it anywhere you want as long as it is accesible to all your
+filezaar installations.
+
+The easiest way to test it is to create a repository on the same box:
+
+$ mkdir /home/user/repository
+$ cd /home/user/repository
+$ bzr init
+
+
+- Then Create a file inside your home directory named .filezaarrc, you can use
   filezaarrc.dist as a template and customize it to fit your needs:
 
- ex:
+on this case:
 .
 .
 [main]
-#This is where you are going to store your files
-working_path = '/home/user/files'   
-#It is not necessary for this to be an sftp server,
-#it could be any supported protocol,with read and write
-#capabilities you can even use Launchpad or similar for
-#this, altough I don't know If that is allowed. If you are
-#testing it can also be a local branch.
-bzr_branch_uri_remote = 'sftp://user@server/~/files' .
+# This is where you are going to store your files
+local_files_dir = /home/user/FileZaar
+# This is the remote repository, it is an URI, the format, and locations supported
+# are the ones allowed by bazaar
+remote_repository_uri = /home/user/repository
 .
 
-
-- Download the remote branch to a directory (working_path) with the following command 
-
-$ bzr branch branch_uri_remote
 
 Running FileZaar:
 ================
 
+Note: Before running filezaar for the first time be sure to have the 
+
 1) Export the PYTHONPATH environment variable
 
-$ export PYTHONPATH=/home/user/filezaarinstall:{$PYTHNOPATH}
+$ export PYTHONPATH=/home/user/filezaarsource:{$PYTHNOPATH}
 
-From within the directory where the source code has been isntalled simply run:
+2) From within the directory where the source code has been installed simply run:
 
 $ python filezaardaemon.py
 
-To test if it is working just copy or create a file inside the WORKING_PATH and 
-it will be automatically synchronized with the remote branch.
+To test if it is working just copy or create a file inside the 
+"local_files_dir" you configured in your .filezaarrc file and it
+will be automatically synchronized with the remote repository
 
 If you want to receive notifications run also:
 

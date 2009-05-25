@@ -23,6 +23,6 @@ cp.read(path_config_file)
 section = 'main'
 
 def get_config():
-    working_path = cp.get(section, 'working_path')
-    bzr_branch_uri_remote = cp.get(section, 'bzr_branch_uri_remote')
+    local_files_dir = cp.get(section, 'local_files_dir')
+    remote_repository_uri = cp.get(section, 'remote_repository_uri')
     return locals()

@@ -15,8 +15,6 @@
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
 import os, sys
-import re
-from fnmatch import translate
 import time
 from bzrlib import branch, errors
 from bzrlib.workingtree import WorkingTree
@@ -31,9 +29,7 @@ class Process(ProcessEvent):
     """
     def __init__(self, queue_):
         self.queue_ = queue_
-        BLACK_LISTED_FILE_TYPES = ('*.swp', '*.pepe')
-        rx = '|'.join(translate(p) for p in BLACK_LISTED_FILE_TYPES)
-        self.pattern = re.compile(rx)
+        self.bl_pattern = BLACK_LISTED_FILE_PATTERN
         
         #Create Events handler
         self.events_handler = {}
@@ -51,7 +47,7 @@ class Process(ProcessEvent):
     def __call__(self, caller_event):
         file_name = caller_event.name
 
-        if not self.pattern.match(file_name):
+        if not self.bl_pattern.match(file_name):
             file_path = caller_event.path
             file_complete_name = file_name and os.path.join(file_path, file_name) or file_path
 
@@ -78,7 +74,7 @@ class Process(ProcessEvent):
 class Watcher(object):
     def __init__(self):
         configuration = config.get_config()
-        self.working_path = configuration['working_path']
+        self.working_path = configuration[LOCAL_FILES_DIR]
 
     def monitor(self, queue_):
         wm = WatchManager()
