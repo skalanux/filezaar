@@ -63,10 +63,10 @@ class FileZaarDBUS(dbus.service.Object):
     def __init__(self, bus_name, object_path='/org/filezaar/daemon',
                  auto_connect=True):
         dbus.service.Object.__init__(self, bus_name, object_path)
-     
+
     @dbus.service.method('org.filezaar.daemon')
     def Hello(self):
-        """ Returns the version number. 
+        """ Returns the version number.
         """
         # VERSIONNUMBER
         version = '0.1'
@@ -75,15 +75,15 @@ class FileZaarDBUS(dbus.service.Object):
 
     @dbus.service.method('org.filezaar.daemon')
     def GetFileZaarStatus(self):
-        """ Returns the version number. 
+        """ Returns the version number.
         """
         # Checking for the state of filezaar
         # right now this is a dummy method
         return STATUS_IDLE, "Filezaar is uptodate"
 
-    ########## Signals and Signals methods ############################# 
+    ########## Signals and Signals methods #############################
     ####################################################################
-    
+
     # Status Changed
     @dbus.service.method('org.filezaar.daemon', in_signature='uav')
     def EmitStatusChanged(self, state, info):
@@ -209,16 +209,16 @@ def main(argv):
     #daemonize()
 
     # Open the DBUS session
-    # TODO: Decide if I Should User a SessionBus(SessionWide) or a SystemBus(SystemWide)
+    # TODO: Decide if I should use a SessionBus(SessionWide) or a SystemBus(SystemWide)
     d_bus_name = dbus.service.BusName('org.filezaar.daemon', bus=dbus.SessionBus())
     obj = FileZaarDBUS(d_bus_name, auto_connect=auto_connect)
 
     gobject.threads_init()
-    
-    (child_pid, aa, bb, cc) = gobject.spawn_async(["controller.py"], 
+
+    (child_pid, aa, bb, cc) = gobject.spawn_async(["controller.py"],
                                                flags=gobject.SPAWN_CHILD_INHERITS_STDIN)
 
-    
+
     signal.signal(signal.SIGINT, sigterm_caught)
     signal.signal(signal.SIGTERM, sigterm_caught)
     # Enter the main loop
@@ -239,8 +239,8 @@ def sigterm_caught(sig, frame):
 
 
 if __name__ == '__main__':
-    #Only do this if we decide to use system bus instead of the session One
-    #if os.getuid() != 0:
+    # Only do this if we decide to use system bus instead of the session One
+    # if os.getuid() != 0:
     #    print ("Root privileges are required for the daemon to run properly." +
     #           "  Exiting.")
     #    sys.exit(1)

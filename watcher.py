@@ -30,14 +30,14 @@ class Process(ProcessEvent):
     def __init__(self, queue_):
         self.queue_ = queue_
         self.bl_pattern = BLACK_LISTED_FILE_PATTERN
-        
+
         #Create Events handler
         self.events_handler = {}
 
-        self._register_event('IN_CREATE', '_handle_update') 
-        self._register_event('IN_MODIFY', '_handle_update') 
-        self._register_event('IN_MOVED_FROM', '_handle_update') 
-        self._register_event('IN_ISDIR', '_handle_isdir') 
+        self._register_event('IN_CREATE', '_handle_update')
+        self._register_event('IN_MODIFY', '_handle_update')
+        self._register_event('IN_MOVED_FROM', '_handle_update')
+        self._register_event('IN_ISDIR', '_handle_isdir')
 
         print "events handler: ",self.events_handler
 
@@ -67,8 +67,8 @@ class Process(ProcessEvent):
         self.queue_.put((file_name,))
 
     def _handle_isdir(self,event, file_name):
-        #Probably we only need to use smart add when it is a directory
-        #self.parent.upload_file(file_name)
+        # Probably we will only need to use smart add when it is a directory
+        # self.parent.upload_file(file_name)
         pass
 
 class Watcher(object):

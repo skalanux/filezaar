@@ -55,8 +55,8 @@ filezaar installations.
 
 The easiest way to test it is to create a repository on the same box:
 
-$ mkdir /home/user/repository
-$ cd /home/user/repository
+$ mkdir ~/repository
+$ cd ~/repository
 $ bzr init
 
 

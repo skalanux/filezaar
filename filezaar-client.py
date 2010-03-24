@@ -20,14 +20,14 @@ daemon = None
 
 class TrayIcon(object):
     """ Base Tray Icon class.
-    
+
     Base Class for implementing a tray icon to display network status.
-    
+
     """
     def __init__(self):
         self.tr = self.StatusTrayIconGUI()
         self.icon_info = self.TrayConnectionInfo(self.tr)
-        
+
     def is_embedded(self):
         return self.tr.is_embedded()
 
@@ -45,7 +45,7 @@ class TrayIcon(object):
             #noti.set_timeout(pynotify.EXPIRES_DEFAULT)
             #noti.show()
             self.update_system_state()
-            
+
         def set_idle_state(self, info):
             """ Sets the icon info for a wired state. """
             noti = pynotify.Notification("Updated", "FileZaar is uptodate")
@@ -53,11 +53,11 @@ class TrayIcon(object):
             self.tr.set_tooltip('FileZaar is uptodate')
             self.tr.set_from_file(PATH_IMAGES + "filezaar_uptodate.png")
             noti.show()
-    
+
         def set_syncing_state(self, info):
             """ Sets the icon info for a connecting state. """
             file_name = "xx"
-            noti = pynotify.Notification("Synchronizing", 
+            noti = pynotify.Notification("Synchronizing",
                                          "FileZaar is synchronizing "
                                          "files with remote repository")
             self.tr.set_tooltip("FileZaar is synchronizing files")
@@ -67,8 +67,8 @@ class TrayIcon(object):
         def set_uploading_state(self, info):
             """ Sets the icon info for a connecting state. """
             file_name = "xx"
-            noti = pynotify.Notification("Updating Files", 
-                                         "FileZaar is uploading  %s" 
+            noti = pynotify.Notification("Updating Files",
+                                         "FileZaar is uploading  %s"
                                          % file_name)
             self.tr.set_tooltip("FileZaar is updating files")
             self.tr.set_from_file(PATH_IMAGES + "filezaar_sync.png")
@@ -82,8 +82,8 @@ class TrayIcon(object):
 
             if not state or not info:
                 [state, info] = daemon.GetFileZaarStatus()
- 
-            if state in (STATUS_PULLING, STATUS_PUSHING, 
+
+            if state in (STATUS_PULLING, STATUS_PUSHING,
                          STATUS_UPDATING):
                 self.set_syncing_state(info)
             elif state == STATUS_IDLE:
@@ -95,8 +95,8 @@ class TrayIcon(object):
 
     class TrayIconGUI(object):
         """ Base Tray Icon UI class.
-        
-        Implements methods and variables used by 
+
+        Implements methods and variables used by
         tray icon.
 
         """
@@ -136,7 +136,7 @@ class TrayIcon(object):
         def on_activate(self, data=None):
             """ Opens nautilus folder """
             self.show_nautilus_filezaar_folder()
-    
+
         def on_synchronize(self, data=None):
             """ Force synchronization of Filezaar """
             daemon.EmitRequestSync()
@@ -156,13 +156,13 @@ class TrayIcon(object):
             dialog.destroy()
 
         def show_nautilus_filezaar_folder(self):
-            """ Opens Nautilus. 
-                It would be great if we could use DBUS , 
-                but it seems like Those Features are 
+            """ Opens Nautilus.
+                It would be great if we could use DBUS ,
+                but it seems like Those Features are
                 not present at the moment
             """
             print "open nautilus"
- 
+
     class StatusTrayIconGUI(gtk.StatusIcon, TrayIconGUI):
         """ Class for creating the FileZaar tray icon on gtk > 2.10.
         """
@@ -190,7 +190,7 @@ class TrayIcon(object):
                 gtk.StatusIcon.set_from_file(self, path)
 
 
-# Module main methods 
+# Module main methods
 def connect_to_dbus():
     global bus, daemon
     # Connect to the daemon
@@ -209,7 +209,7 @@ def connect_to_dbus():
             print ("Could not connect to filezaar D-Bus interface.  " +
                       "Make sure the daemon is started.")
             sys.exit(1)
-    
+
     daemon = dbus.Interface(proxy_obj, 'org.filezaar.daemon')
     return True
 

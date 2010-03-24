@@ -111,7 +111,7 @@ class UpdaterBZR(object):
             selected_conflicts.remove_files(tree)
         finally:
             tree.unlock()
-    
+
     def _merge(self):
         try:
             self.tree.merge_from_branch(self.branch_remote)
@@ -163,7 +163,7 @@ class UpdaterBZR(object):
         try:
             self.tree.commit(commit_text)
         except errors.ConflictsInTree:
-            self._resolve_all() 
+            self._resolve_all()
             self.tree.commit(commit_text)
 
     def _update(self):
