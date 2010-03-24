@@ -15,10 +15,16 @@ then
     echo "file:///tmp/filezaar_repo"
     echo "\n"
     echo "LOCAL_FILE_PATH: Desired filepath for your local files i.e.:"
-    echo "    /tmp/filezaar_local"
+    echo "/tmp/filezaar_local"
 
     exit $E_BADARGS
 fi
 
 /usr/bin/bzr init $1
 /usr/bin/bzr co $1 $2
+
+echo "[main] \n\
+local_files_dir = $2 \n\
+remote_repository_uri = $1 \n\
+vcs_type = bzr" > ~/.filezarrc
+
