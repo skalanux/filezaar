@@ -55,9 +55,9 @@ filezaar installations.
 
 The easiest way to test it is to create a repository on the same box:
 
-$ mkdir ~/repository
-$ cd ~/repository
-$ bzr init
+$ mkdir ~/FileZaar
+$ cd ~/FileZaar
+$ bzr init my_files
 
 
 - Then Create a file inside your home directory named .filezaarrc, you can use
@@ -68,10 +68,10 @@ on this case:
 .
 [main]
 # This is where you are going to store your files
-local_files_dir = /home/user/FileZaar
+local_files_dir = /home/user/FileZaar/my_files
 # This is the remote repository, it is an URI, the format, and locations supported
 # are the ones allowed by bazaar
-remote_repository_uri = /home/user/repository
+remote_repository_uri = file:///tmp/filezaar
 .
 
 
