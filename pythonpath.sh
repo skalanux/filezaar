@@ -1,1 +1,1 @@
-export PYTHONPATH=/home/ska/Dropbox/Projects:{$PYTHONPATH}
+export PYTHONPATH=/home/ska/Dropbox/Projects/Personales:{$PYTHONPATH}

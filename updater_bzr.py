@@ -13,19 +13,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
-""" updater module handler for bazaar backend
-"""
+""" Updater module handler for bazaar backend """
 
+import config
 import os, sys
 import re
-from fnmatch import translate
 import time
+
 from bzrlib import branch, errors
 from bzrlib.conflicts import ConflictList
 from bzrlib.lockdir import LockDir
 from bzrlib.workingtree import WorkingTree
-import config
+from fnmatch import translate
+
 from filezaar.constants import *
+
 
 class UpdaterBZR(object):
     def __init__(self):
@@ -38,8 +40,8 @@ class UpdaterBZR(object):
         # local branch exists
         try:
             self.branch_remote = branch.Branch.open('%s' % branch_uri_remote)
-        except:
-            print "remote branch not accesible, quitting"
+        except Exception, e:
+            print e
             sys.exit(1)
 
         # Check for local copy
@@ -47,15 +49,16 @@ class UpdaterBZR(object):
             self.tree = WorkingTree.open(self.working_path)
             self.branch_local = branch.Branch.open(branch_uri_local)
         except errors.NotBranchError:
-            print "Creating local Branch"
-            self._create_local_branch(branch_uri_local)
-            self.tree = WorkingTree.open(self.working_path)
-            self.branch_local = branch.Branch.open(branch_uri_local)
+            print "please run setup.sh first to create the repository"
+            #print "Creating local Branch"
+            #self._create_local_branch(branch_uri_local)
+            #self.tree = WorkingTree.open(self.working_path)
+            #self.branch_local = branch.Branch.open(branch_uri_local)
 
     def _create_local_branch(self, branch_uri_local):
         local_branch = self.branch_remote.bzrdir.sprout( \
                        branch_uri_local).open_branch()
- 
+
 
     def sync (self):
         """
@@ -76,9 +79,7 @@ class UpdaterBZR(object):
         self._push()
 
     def upload_files(self, file_names):
-        """
-        Uploads files and adds them to the filezaar repository
-        """
+        """Upload files and add them to the filezaar repository."""
         #lft = LockDir('sftp://skazaar@mislupins.com.ar/~/testp1/.bzr/branch/lock', 'breaklock')
         #lft.unlock()
         for file_name in file_names:
@@ -96,8 +97,7 @@ class UpdaterBZR(object):
             return False
 
     def _resolve_all(self):
-        """Resolve some or all of the conflicts in a working tree.
-        """
+        """Resolve some or all of the conflicts in a working tree."""
         tree = self.tree
         tree.lock_tree_write()
         try:
@@ -127,11 +127,7 @@ class UpdaterBZR(object):
         self.branch_local.pull(self.branch_remote)
 
     def _push(self):
-        """
-        Pushes the commited files to filezaar
-        """
-
-        #import pdb;pdb.set_trace()
+        """Push the commited files to filezaar."""
         try:
             self.branch_local.push(self.branch_remote)
         except errors.DivergedBranches:
@@ -157,9 +153,7 @@ class UpdaterBZR(object):
             self.tree.smart_add(['%s' % (self.working_path)])
 
     def _commit(self, commit_text):
-        """
-        Commits the changes to local repository
-        """
+        """Commit the changes to local repository."""
         try:
             self.tree.commit(commit_text)
         except errors.ConflictsInTree:
@@ -167,7 +161,5 @@ class UpdaterBZR(object):
             self.tree.commit(commit_text)
 
     def _update(self):
-        """
-        update files
-        """
+        """update files."""
         self.tree.update()

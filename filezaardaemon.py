@@ -66,8 +66,7 @@ class FileZaarDBUS(dbus.service.Object):
 
     @dbus.service.method('org.filezaar.daemon')
     def Hello(self):
-        """ Returns the version number.
-        """
+        """ Return the version number."""
         # VERSIONNUMBER
         version = '0.1'
         print 'returned version number', version
@@ -75,8 +74,7 @@ class FileZaarDBUS(dbus.service.Object):
 
     @dbus.service.method('org.filezaar.daemon')
     def GetFileZaarStatus(self):
-        """ Returns the version number.
-        """
+        """ Return the version number."""
         # Checking for the state of filezaar
         # right now this is a dummy method
         return STATUS_IDLE, "Filezaar is uptodate"

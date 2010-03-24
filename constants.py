@@ -39,7 +39,7 @@ LOCAL_FILES_DIR = 'local_files_dir'
 REMOTE_REPOSITORY_URI = 'remote_repository_uri'
 
 # Black Listed File Types
-BLACK_LISTED_FILE_TYPES = ('*.swp', '*.pepe')
+BLACK_LISTED_FILE_TYPES = ('*.swp*', '*.bzr')
 rx = '|'.join(translate(p) for p in BLACK_LISTED_FILE_TYPES)
 BLACK_LISTED_FILE_PATTERN = re.compile(rx)
 

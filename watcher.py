@@ -14,13 +14,13 @@
 #    along with FileZaar.  If not, see <http://www.gnu.org/licenses/>.
 #    Author: Juan Manuel Schillaci ska@lanux.org.ar
 
+import config
 import os, sys
 import time
-from bzrlib import branch, errors
-from bzrlib.workingtree import WorkingTree
-from bzrlib.conflicts import ConflictList
+
+import pyinotify
 from pyinotify import WatchManager, Notifier, ProcessEvent, EventsCodes
-import config
+
 from filezaar.constants import *
 
 class Process(ProcessEvent):
@@ -38,6 +38,7 @@ class Process(ProcessEvent):
         self._register_event('IN_MODIFY', '_handle_update')
         self._register_event('IN_MOVED_FROM', '_handle_update')
         self._register_event('IN_ISDIR', '_handle_isdir')
+        self._register_event('IN_DELETE', '_handle_dummy')
 
         print "events handler: ",self.events_handler
 
@@ -47,28 +48,39 @@ class Process(ProcessEvent):
     def __call__(self, caller_event):
         file_name = caller_event.name
 
+        # TODO: Check if it is possible to set the an ignore pattern
+        # instead of doing this
         if not self.bl_pattern.match(file_name):
-            file_path = caller_event.path
-            file_complete_name = file_name and os.path.join(file_path, file_name) or file_path
+            pathname = caller_event.pathname
+            maskname = caller_event.maskname
 
             #Calling the actual event
-            events_name = caller_event.event_name.split("|")
-            if len(events_name) == 3:
-                event_type = events_name[0]
-                handler_name = self.events_handler[event_type]
-                getattr(self, handler_name)(event_type, file_complete_name)
-            else:
-                for event in events_name:
-                    handler_name = self.events_handler[event]
-                    getattr(self, handler_name)(event, file_complete_name)
+            events_name = maskname.split("|")
+            print events_name
+
+            try:
+                if len(events_name) == 3:
+                    event_type = events_name[0]
+                    handler_name = self.events_handler[event_type]
+                    getattr(self, handler_name)(event_type, pathname)
+                else:
+                    for event in events_name:
+                        handler_name = self.events_handler[event]
+                        getattr(self, handler_name)(event, pathname)
+            except Exception, e:
+                print e
 
     def _handle_update(self,event, file_name):
         #self.parent.upload_file(file_name)
         self.queue_.put((file_name,))
 
-    def _handle_isdir(self,event, file_name):
+    def _handle_isdir(self, event, file_name):
         # Probably we will only need to use smart add when it is a directory
         # self.parent.upload_file(file_name)
+        pass
+
+    def _handle_dummy(self, event, file_name):
+        """Do nothing."""
         pass
 
 class Watcher(object):
@@ -79,9 +91,10 @@ class Watcher(object):
     def monitor(self, queue_):
         wm = WatchManager()
         notifier = Notifier(wm, Process(queue_))
-        ec = EventsCodes
-        wm.add_watch(self.working_path, ec.IN_CREATE|ec.IN_MODIFY|ec.IN_MOVED_FROM|ec.IN_ISDIR)
-        #Need to add event ON_DELETE and MOVED_TO
+        mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE | \
+            pyinotify.IN_MODIFY | pyinotify.IN_MOVED_FROM | \
+            pyinotify.IN_ISDIR
+        wm.add_watch(self.working_path, mask, rec=False)
 
         try:
             while True:
