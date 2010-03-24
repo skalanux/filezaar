@@ -19,22 +19,18 @@ computer, please notice that this is a realy early version, meant only for
 developers. You are at your own risk!!
 
 
-Required OS: Linux, (it only has been tested on Ubuntu 8.10 ad above, but it 
+Required OS: Linux, (it only has been tested on Ubuntu 9.10 ad above, but it 
                     should work also on any linux with the libraries mentioned
                     below), it also requires a kernel with INOTIFY support. 
                     if you don't know what I'm talking about, you already 
                     have it :).
 
-Required libraries: python-inotify, python-notify, bzrlib >= version 1.13 
+Required libraries: python-inotify>=0.8.6, python-notify, bzrlib >= version 1.13 
 
 Notes: 
 - If you are using Ubuntu 8.10 you can install bzrlib using easy_install,
     because Ubuntu 8.10 has an old and buggy version on its repositories),
     otherwise stick to the apt version.
-- The api for python-inotify has changed signifcantly, the versions available
-    until Ubuntu 9.04 work well, but if you try to install it with easy_install
-    it would fail. I'm planning to fix this ASAP.
-'
 
 
 Download/Install:
@@ -53,26 +49,23 @@ In order to run filezaar you need a repostitory to store all your files.
 you can create it anywhere you want as long as it is accesible to all your
 filezaar installations.
 
-The easiest way to test it is to create a repository on the same box:
-
-$ mkdir ~/FileZaar
-$ cd ~/FileZaar
-$ bzr init my_files
+The easiest way to test it is to create a repository on the same box, you 
+can use the script setup_bazaar.sh for that purpose
 
 
-- Then Create a file inside your home directory named .filezaarrc, you can use
-  filezaarrc.dist as a template and customize it to fit your needs:
+$ sh setup.sh REMOTE_REPOSITORY_URI LOCAL_FILE_PATH
 
-on this case:
-.
-.
-[main]
-# This is where you are going to store your files
-local_files_dir = /home/user/FileZaar/my_files
-# This is the remote repository, it is an URI, the format, and locations supported
-# are the ones allowed by bazaar
-remote_repository_uri = file:///tmp/filezaar
-.
+REMOTE_REPOSITORY_URI: URI of your repository i.e.:
+    file:///tmp/filezaar_repo
+
+LOCAL_FILE_PATH: Desired filepath for your local files i.e.:
+    /tmp/filezaar_local
+
+
+This script will create both the repository and the local file directories.
+
+It will also create a ~/filezaarrc file with the configuration
+(check filezaarrc.dist file for an example)
 
 
 Running FileZaar:
@@ -82,7 +75,7 @@ Note: Before running filezaar for the first time be sure to have the
 
 1) Export the PYTHONPATH environment variable
 
-$ export PYTHONPATH=/home/user/filezaarsource:{$PYTHNOPATH}
+$ export PYTHONPATH=/home/user/filezaarsource:{$PYTHONPATH}
 
 2) From within the directory where the source code has been installed simply run:
 
@@ -95,5 +88,3 @@ will be automatically synchronized with the remote repository
 If you want to receive notifications run also:
 
 $ python filezaar-client.py
-
-
